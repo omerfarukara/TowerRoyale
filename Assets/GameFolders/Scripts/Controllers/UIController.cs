@@ -1,6 +1,7 @@
 using System;
 using GameFolders.Scripts.General;
 using GameFolders.Scripts.Managers;
+using TowerRoyale;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +9,7 @@ namespace GameFolders.Scripts.Controllers
 {
     public class UIController : MonoSingleton<UIController>
     {
-        private EventData _eventData;
+        private EventData _eventData => DataManager.Instance.EventData;
 
         [Header("Panels")]
         [SerializeField] private GameObject victoryPanel;
@@ -17,12 +18,6 @@ namespace GameFolders.Scripts.Controllers
         [Header("Buttons")]
         [SerializeField] Button nextLevelButton;
         [SerializeField] Button tryAgainButton;
-
-        private void Awake()
-        {
-            Singleton();
-            _eventData = Resources.Load("EventData") as EventData;
-        }
 
         private void OnEnable()
         {

@@ -1,6 +1,7 @@
 using System.Collections;
 using GameFolders.Scripts.General;
-using GameFolders.Scripts.General.FGEnum;
+using GameFolders.Scripts.General.Enum;
+using TowerRoyale;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
@@ -15,7 +16,7 @@ namespace GameFolders.Scripts.Managers
         [SerializeField] private int randomLevelLowerLimit;
         [SerializeField] private int startDelay;
         
-        private EventData _eventData;
+        //private EventData _eventData => DataManager.Instance.EventData;
 
         public GameState GameState { get; set; } = GameState.Play;
 
@@ -42,17 +43,11 @@ namespace GameFolders.Scripts.Managers
    
         #region MonoBehaviour Methods
 
-        private void Awake()
-        {
-            Singleton(true);
-            _eventData = Resources.Load("EventData") as EventData;
-        }
-    
-        private void OnEnable()
-        {
-            _eventData.OnFinishLevel += OnFinish;
-            _eventData.OnLoseLevel += OnLose;
-        }
+        // private void OnEnable()
+        // {
+        //     _eventData.OnFinishLevel += OnFinish;
+        //     _eventData.OnLoseLevel += OnLose;
+        // }
 
         private void Start()
         {

@@ -19,7 +19,6 @@ namespace GameFolders.Scripts.SoundSystem
         private void Awake()
         {
             _soundData = Resources.Load("SoundData") as SoundData;
-            Singleton(true);
             Initiate();
         }
 
