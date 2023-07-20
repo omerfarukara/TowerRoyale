@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using GameFolders.Scripts.General;
 using GameFolders.Scripts.General.Enum;
 using TMPro;
 using UnityEngine;
@@ -14,12 +15,18 @@ namespace TowerRoyale
         [SerializeField] private TextMeshProUGUI characterNameText;
         [SerializeField] private Image characterImage;
 
-        internal SpawnObject SpawnObject { get; set; }
+        //private SpawnObject SpawnObject { get; set; }
         private CharacterData _characterData;
+        private EventData EventData => DataManager.Instance.EventData;
 
         private void Awake()
         {
             SetCharacterData();
+        }
+
+        internal void OnSpawn(Vector3 pos)
+        {
+            EventData.OnSpawnCharacter?.Invoke(characterType,pos);
         }
 
         private void SetCharacterData()
@@ -39,7 +46,7 @@ namespace TowerRoyale
         {
             characterNameText.text = _characterData.nickname;
             characterImage.sprite = _characterData.characterSprite;
-            SpawnObject = _characterData.spawnObject;
+           //SpawnObject = _characterData.spawnObject;
         }
     }
 }

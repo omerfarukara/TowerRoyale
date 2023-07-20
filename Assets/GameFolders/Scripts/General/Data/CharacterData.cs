@@ -9,6 +9,5 @@ namespace TowerRoyale
     {
         public string nickname;
         public Sprite characterSprite;
-        public SpawnObject spawnObject;
     }
 }

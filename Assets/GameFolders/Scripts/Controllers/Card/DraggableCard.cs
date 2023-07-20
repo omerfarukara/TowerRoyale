@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using GameFolders.Scripts.General;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -9,12 +10,15 @@ namespace TowerRoyale
 {
     public class DraggableCard : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandler
     {
+        [SerializeField] private LayerMask layer;
         [SerializeField] private Image image;
+        [SerializeField] private Card card;
 
         private Transform _transform;
         private Transform _parentAfterDrag;
         private Vector3 _defaultPosition;
         private Camera _camera;
+        private EventData EventData => DataManager.Instance.EventData;
 
         private void Awake()
         {
@@ -42,14 +46,15 @@ namespace TowerRoyale
             RaycastHit hit;
             Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
         
-            if (Physics.Raycast(ray, out hit) && hit.collider.CompareTag("PlayerRefSpawnPoint"))
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity,layer)) // Layer'a çevirilcek
             {
-                hit.transform.parent.GetComponent<Spawner>().Spawn(GetComponent<Card>().SpawnObject);
+                card.OnSpawn(hit.point);
                 gameObject.SetActive(false);
             }
             else
             {
                 _transform.position = _defaultPosition;
+                image.raycastTarget = true;
             }
         }
     }
