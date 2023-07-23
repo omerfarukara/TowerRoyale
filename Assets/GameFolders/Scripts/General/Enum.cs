@@ -41,9 +41,9 @@ namespace GameFolders.Scripts.General.Enum
         AirAndGround
     }
 
-    public enum Gamer
+    public enum OwnerType
     {
         Player,
-        AI
+        Enemy
     }
 }

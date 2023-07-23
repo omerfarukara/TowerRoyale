@@ -12,7 +12,6 @@ namespace TowerRoyale
     public abstract class SpawnObject : MonoBehaviour
     {
         public NavMeshAgent agent;
-        public Gamer gamer;
-        public abstract void Initialize(Action<SpawnObject> onComplete);
+        public abstract void Initialize(Action<SpawnObject> onComplete, OwnerType ownerType, Vector3 position);
     }
 }

@@ -6,56 +6,49 @@ using GameFolders.Scripts.Controllers;
 using GameFolders.Scripts.General;
 using GameFolders.Scripts.General.Enum;
 using GameFolders.Scripts.Interfaces;
+using GameFolders.Scripts.Managers;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 
 namespace TowerRoyale
 {
     public class ArcherController : SpawnObject, IAttackable, IDamageable
     {
-        [SerializeField] private Animator _animator;
-        [SerializeField] private LayerMask enemyLayer;
-        [SerializeField] private CharacterData _characterData;
-
-        [ShowInInspector] Dictionary<Transform, float> spawners = new Dictionary<Transform, float>();
+        [SerializeField] private Animator animator;
+        [SerializeField] private CharacterData characterData;
+        [SerializeField] private float scanTime;
+        [SerializeField] private UnityEvent onInitiate;
+        [SerializeField] private UnityEvent onDead;
+        
+        [ShowInInspector] private List<Transform> _towers = new List<Transform>();
+        [ShowInInspector] private OwnerType _ownerType;
 
         private Action<SpawnObject> _onComplete;
         private Collider[] _sightColliders;
 
-        private float _health;
+        private float _currentScanTime;
+        private bool _canScan;
 
-        public float Health
-        {
-            get => _health;
-            set
-            {
-                _health = value;
-                if (Health < 0)
-                {
-                    Health = 0;
-                    Destroy(gameObject);
-                }
-            }
-        }
+        public OwnerType OwnerType => _ownerType;
+        
+        public float Health { get; set; }
 
+        private bool _canMove;
         private int _mana;
         private Target _targetType;
-        public float _attackSpeed;
-        public float _attackRange;
-        public float _sightRange;
-        public float _movementSpeed;
-        public int _unitAmount;
-        public int _damage;
+        private float _attackSpeed;
+        private float _attackRange;
+        private float _sightRange;
+        private float _movementSpeed;
+        private int _unitAmount;
+        private int _damage;
 
         private bool _isAttack;
-        public Transform target;
-
-        private void Awake()
-        {
-            VariablesSetLocal();
-            SetUnitData();
-        }
+        private Transform _target;
+        private static readonly int AttackHash = Animator.StringToHash("Attack");
+        private static readonly int ForceHash = Animator.StringToHash("Force");
 
         private void SetUnitData()
         {
@@ -64,83 +57,65 @@ namespace TowerRoyale
 
         private void VariablesSetLocal()
         {
-            _mana = _characterData.mana;
-            _targetType = _characterData.target;
-            _attackSpeed = _characterData.attackSpeed;
-            _attackRange = _characterData.attackRange;
-            _sightRange = _characterData.sightRange;
-            _movementSpeed = _characterData.movementSpeed;
-            _unitAmount = _characterData.unitAmount;
-            _damage = _characterData.damage;
-            Health = _characterData.hitPoints;
+            _mana = characterData.mana;
+            _targetType = characterData.target;
+            _attackSpeed = characterData.attackSpeed;
+            _attackRange = characterData.attackRange;
+            _sightRange = characterData.sightRange;
+            _movementSpeed = characterData.movementSpeed;
+            _unitAmount = characterData.unitAmount;
+            _damage = characterData.damage;
+            Health = characterData.hitPoints;
         }
 
-        public override void Initialize(Action<SpawnObject> onComplete)
+        public override void Initialize(Action<SpawnObject> onComplete, OwnerType ownerType, Vector3 position) // This method works every time a unit is produced
         {
+            VariablesSetLocal();
+            SetUnitData();
             _onComplete = onComplete;
-
-            switch (gamer)
-            {
-                case Gamer.Player:
-                    FindAiTower();
-                    break;
-                case Gamer.AI:
-                    FindPlayerTower();
-                    break;
-            }
-
-
-            target = spawners.OrderBy(s => s.Value).First().Key.transform;
-            agent.SetDestination(target.position);
+            _ownerType = ownerType;
+            _currentScanTime = scanTime;
+            _canScan = true;
+            _canMove = true;
+            _isAttack = false;
+            _target = null;
+            transform.position = position;
+            onInitiate?.Invoke();
+            FindTower();
         }
-
 
         private void FixedUpdate()
         {
+            if(!_canMove) return;
+            
             if (_isAttack) return;
 
-            _sightColliders = Physics.OverlapSphere(transform.position, _sightRange, enemyLayer);
-            if (_sightColliders.Length > 0)
+            if (_canScan)
             {
-                List<Transform> _tranforms = new List<Transform>();
-                foreach (var _sight in _sightColliders)
-                {
-                    switch (gamer)
-                    {
-                        case Gamer.Player:
-                            if (_sight.TryGetComponent(out SpawnObject ai) && ai.gamer == Gamer.AI)
-                            {
-                                _tranforms.Add(_sight.transform);
-                            }
-
-                            break;
-                        case Gamer.AI:
-                            if (_sight.TryGetComponent(out SpawnObject player) && player.gamer == Gamer.Player)
-                            {
-                                _tranforms.Add(_sight.transform);
-                            }
-
-                            break;
-                    }
-
-                    if (_tranforms.Count > 0)
-                    {
-                        target = FindClosestEnemy(_tranforms);
-                        agent.SetDestination(target.position);
-                    }
-                }
+                _canScan = false;
+                CheckAndSetTarget();
             }
         }
 
         private void Update()
         {
+            if(!_canMove) return;
+
             if (_isAttack) return;
 
-            if (target != null)
+            _currentScanTime -= Time.deltaTime;
+            
+            if (_currentScanTime < 0)
             {
-                if (Math.Abs(Vector3.Distance(transform.position, target.position)) > _attackRange)
+                _canScan = true;
+                _currentScanTime = scanTime;
+            }
+            
+            if (_target != null)
+            {
+                if (Math.Abs(Vector3.Distance(transform.position, _target.position)) > _attackRange)
                 {
-                    _animator.SetFloat("Force", agent.velocity.magnitude);
+                    animator.SetFloat(ForceHash, agent.velocity.magnitude);
                     if ( agent.speed != 0)return;
                     agent.speed = _movementSpeed;
                 }
@@ -151,83 +126,97 @@ namespace TowerRoyale
             }
             else
             {
-                switch (gamer)
-                {
-                    case Gamer.Player:
-                        FindAiTower();
-                        break;
-                    case Gamer.AI:
-                        FindPlayerTower();
-                        break;
-                }
+                FindTower();
             }
-            
-            
         }
 
-        private void FindAiTower()
+        private void FindTower()
         {
-            spawners.Clear();
-            foreach (var tower in GameController.Instance.aiTowers)
+            _towers = GameController.Instance.GetTowers(_ownerType);
+            Transform newTransform = _towers.OrderBy(t => Vector3.Distance(t.position, transform.position)).FirstOrDefault();
+            if (newTransform != null)
             {
-                spawners.Add(tower.transform, Vector3.Distance(transform.position, tower.position));
+                _target = newTransform;
+                agent.SetDestination(_target.position);
+                agent.speed = _movementSpeed;
             }
         }
 
-        private void FindPlayerTower()
+        private void CheckAndSetTarget()
         {
-            spawners.Clear();
-            foreach (var tower in GameController.Instance.playerTowers)
+            _sightColliders = Physics.OverlapSphere(transform.position, _sightRange);
+
+            if (_sightColliders.Length <= 0) return;
+            
+            List<Transform> enemyTransforms = new List<Transform>();
+                
+            foreach (Collider sight in _sightColliders)
             {
-                spawners.Add(tower.transform, Vector3.Distance(transform.position, tower.position));
+                if (!sight.TryGetComponent(out IDamageable iDamageable)) continue;
+                    
+                if (iDamageable.OwnerType == _ownerType) continue; // This collider object is mine
+                        
+                // This collider object is Enemy!
+                enemyTransforms.Add(sight.transform);
             }
-        }
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.black;
-            Gizmos.DrawWireSphere(transform.position, _sightRange);
+            Transform newTransform = enemyTransforms.OrderBy(t => Vector3.Distance(t.position, transform.position)).FirstOrDefault();
+            if (newTransform != null)
+            {
+                _target = newTransform;
+                agent.SetDestination(_target.position);
+                agent.speed = _movementSpeed;
+            }
         }
 
         public void Attack()
         {
-            IDamageable iDamageable = target.GetComponent<IDamageable>();
+            if (!_target.TryGetComponent(out IDamageable iDamageable)) return;
+
             iDamageable.TakeDamage(_damage);
 
             _isAttack = true;
             
             agent.speed = 0;
             
-            _animator.SetTrigger("Attack");
+            animator.SetTrigger(AttackHash);
 
             if (iDamageable.Health> 0)
             {
                 Invoke(nameof(Attack), 0.5f);
             }
-        }
-
-        private Transform FindClosestEnemy(List<Transform> tranforms)
-        {
-            float distance = Mathf.Infinity;
-            Vector3 position = transform.position;
-            Transform closest = null;
-            foreach (Transform go in tranforms)
+            else
             {
-                Vector3 diff = go.transform.position - position;
-                float curDistance = diff.sqrMagnitude;
-                if (curDistance < distance)
+                if (Health > 0)
                 {
-                    closest = go;
-                    distance = curDistance;
+                    FindTower();
                 }
             }
+        }
 
-            return closest;
+        private void OnDead()
+        {
+            _onComplete?.Invoke(this);
+            onDead?.Invoke();
         }
 
         public void TakeDamage(float damage)
         {
             Health -= damage;
+            if (Health<= 0)
+            {
+                Health = 0;
+                OnDead();
+            }
         }
+
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.black;
+            Gizmos.DrawWireSphere(transform.position, _sightRange);
+        }
+#endif
     }
 }
