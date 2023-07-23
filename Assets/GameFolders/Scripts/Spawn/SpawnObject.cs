@@ -2,13 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using GameFolders.Scripts.General.Enum;
+using Sirenix.OdinInspector;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace TowerRoyale
 {
     public abstract class SpawnObject : MonoBehaviour
     {
-        public abstract void Initialize(CharacterType type,Action<SpawnObject> onComplete);
+        public NavMeshAgent agent;
+        public Gamer gamer;
+        public abstract void Initialize(Action<SpawnObject> onComplete);
     }
 }

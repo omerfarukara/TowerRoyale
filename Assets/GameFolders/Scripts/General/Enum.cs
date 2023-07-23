@@ -33,4 +33,17 @@ namespace GameFolders.Scripts.General.Enum
         Knight,
         Archer
     }
+
+    public enum Target
+    {
+        Ground,
+        Air,
+        AirAndGround
+    }
+
+    public enum Gamer
+    {
+        Player,
+        AI
+    }
 }

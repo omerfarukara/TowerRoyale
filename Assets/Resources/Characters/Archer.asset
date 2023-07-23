@@ -14,4 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nickname: Archer
   characterSprite: {fileID: 21300000, guid: 484dcdaf0825148b886e56472fb3bb78, type: 3}
-  spawnObject: {fileID: 7928542801734511456, guid: cc91c8ba8b9a34f4d99e70d721f60b64, type: 3}
+  mana: 3
+  attackSpeed: 1.2
+  attackRange: 5.5
+  sightRange: 10
+  target: 2
+  movementSpeed: 5
+  unitAmount: 1
+  damage: 89
+  hitPoints: 252

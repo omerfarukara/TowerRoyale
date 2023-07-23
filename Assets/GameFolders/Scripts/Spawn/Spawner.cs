@@ -10,6 +10,8 @@ namespace TowerRoyale
 {
     public class Spawner : MonoBehaviour
     {
+        [SerializeField] private Gamer gamer;
+
         [SerializeField] private SpawnObject archerObject;
         [SerializeField] private SpawnObject knightObject;
 
@@ -18,15 +20,17 @@ namespace TowerRoyale
 
         private void OnEnable()
         {
+            if (gamer == Gamer.AI) return;
             EventData.OnSpawnCharacter += Spawn;
         }
 
         private void OnDisable()
         {
+            if (gamer == Gamer.AI) return;
             EventData.OnSpawnCharacter -= Spawn;
         }
 
-        private void Spawn(CharacterType characterType, Vector3 pos)
+        internal void Spawn(CharacterType characterType, Vector3 pos)
         {
             if (_spawnObjects.Count == 0)
             {
@@ -45,7 +49,7 @@ namespace TowerRoyale
             }
 
             SpawnObject currentObject = _spawnObjects.Dequeue();
-            currentObject.Initialize(characterType, ReturnToQueue);
+            currentObject.Initialize(ReturnToQueue);
         }
 
         private void ReturnToQueue(SpawnObject spawnObject)

@@ -13,6 +13,7 @@ namespace TowerRoyale
     {
         [SerializeField] private CharacterType characterType;
         [SerializeField] private TextMeshProUGUI characterNameText;
+        [SerializeField] private TextMeshProUGUI manaText;
         [SerializeField] private Image characterImage;
 
         //private SpawnObject SpawnObject { get; set; }
@@ -46,7 +47,7 @@ namespace TowerRoyale
         {
             characterNameText.text = _characterData.nickname;
             characterImage.sprite = _characterData.characterSprite;
-           //SpawnObject = _characterData.spawnObject;
+            manaText.text = _characterData.mana.ToString();
         }
     }
 }
