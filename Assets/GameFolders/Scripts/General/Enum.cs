@@ -31,7 +31,9 @@ namespace GameFolders.Scripts.General.Enum
     public enum CharacterType
     {
         Knight,
-        Archer
+        Archer,
+        Dragon,
+        Support
     }
 
     public enum Target

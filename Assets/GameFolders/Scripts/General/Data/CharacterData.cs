@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace TowerRoyale
 {
-    [CreateAssetMenu(fileName = "New Character", menuName = "Character")]
+    [CreateAssetMenu(fileName = "Character Data", menuName = "Data /Character Data")]
     public class CharacterData : ScriptableObject
     {
         public string nickname;

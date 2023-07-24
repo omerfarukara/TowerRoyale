@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 412c86572be41394b89b6d0a9387c6ab, type: 3}
+  m_Name: Base Tower
+  m_EditorClassIdentifier: 
+  health: 2568
+  hitSpeed: 1
+  damage: 54
+  range: 8
+  damagePerSecond: 54
+  target: 2

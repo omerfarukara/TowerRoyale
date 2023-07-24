@@ -24,23 +24,17 @@ namespace GameFolders.Scripts.Controllers
             nextLevelButton.onClick.AddListener(OnNextLevel);
             tryAgainButton.onClick.AddListener(OnTryAgain);
             _eventData.OnFinishLevel += OnFinish;
-            _eventData.OnLoseLevel += OnLose;
         }
 
         private void OnDisable()
         {
             _eventData.OnFinishLevel -= OnFinish;
-            _eventData.OnLoseLevel -= OnLose;
         }
 
-        private void OnFinish()
+        private void OnFinish(bool status)
         {
-            victoryPanel.SetActive(true);
-        }
-
-        private void OnLose()
-        {
-            losePanel.SetActive(true);
+            victoryPanel.SetActive(status);
+            losePanel.SetActive(!status);
         }
 
         private void OnNextLevel()

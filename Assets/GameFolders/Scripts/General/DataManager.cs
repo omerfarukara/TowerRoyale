@@ -10,10 +10,14 @@ namespace TowerRoyale
         [SerializeField] private EventData eventData;
         [SerializeField] private CharacterData knightData;
         [SerializeField] private CharacterData archerData;
+        [SerializeField] private CharacterData dragonData;
+        [SerializeField] private CharacterData supportData;
 
         public EventData EventData => eventData;
         public CharacterData KnightData => knightData;
         public CharacterData ArcherData => archerData;
+        public CharacterData DragonData => dragonData;
+        public CharacterData SupportData => supportData;
 
     }
 }

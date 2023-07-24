@@ -14,6 +14,8 @@ namespace TowerRoyale
 
         [SerializeField] private SpawnObject archerObject;
         [SerializeField] private SpawnObject knightObject;
+        [SerializeField] private SpawnObject dragonObject;
+        [SerializeField] private SpawnObject supportObject;
 
         private Queue<SpawnObject> _spawnObjects = new Queue<SpawnObject>();
         private EventData EventData => DataManager.Instance.EventData;
@@ -30,7 +32,7 @@ namespace TowerRoyale
             EventData.OnSpawnCharacter -= Spawn;
         }
 
-        internal void Spawn(CharacterType characterType, Vector3 pos)
+        private void Spawn(CharacterType characterType, Vector3 pos)
         {
             if (_spawnObjects.Count == 0)
             {
@@ -38,6 +40,28 @@ namespace TowerRoyale
                 {
                     CharacterType.Knight => Instantiate(knightObject, pos, Quaternion.identity),
                     CharacterType.Archer => Instantiate(archerObject, pos, Quaternion.identity),
+                    CharacterType.Dragon => Instantiate(dragonObject, pos, Quaternion.identity),
+                    CharacterType.Support => Instantiate(supportObject, pos, Quaternion.identity),
+                    _ => null
+                };
+
+                _spawnObjects.Enqueue(instantiateObject);
+            }
+
+            SpawnObject currentObject = _spawnObjects.Dequeue();
+            currentObject.Initialize(ReturnToQueue, ownerType, pos);
+        }
+        
+        internal void Spawn(CharacterType characterType, Vector3 pos,Transform parent)
+        {
+            if (_spawnObjects.Count == 0)
+            {
+                SpawnObject instantiateObject = characterType switch
+                {
+                    CharacterType.Knight => Instantiate(knightObject, pos, Quaternion.identity,parent),
+                    CharacterType.Archer => Instantiate(archerObject, pos, Quaternion.identity,parent),
+                    CharacterType.Dragon => Instantiate(dragonObject, pos, Quaternion.identity,parent),
+                    CharacterType.Support => Instantiate(supportObject, pos, Quaternion.identity,parent),
                     _ => null
                 };
 

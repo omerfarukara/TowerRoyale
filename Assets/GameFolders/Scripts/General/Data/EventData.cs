@@ -9,8 +9,7 @@ namespace GameFolders.Scripts.General
     public class EventData : ScriptableObject
     {
         public Action OnPlay { get; set; }
-        public Action OnFinishLevel { get; set; }
-        public Action OnLoseLevel { get; set; }
+        public Action<bool> OnFinishLevel { get; set; }
         
         public Action<CharacterType,Vector3> OnSpawnCharacter { get; set; }
         public Action<Vector3> OnRayCharacter { get; set; }

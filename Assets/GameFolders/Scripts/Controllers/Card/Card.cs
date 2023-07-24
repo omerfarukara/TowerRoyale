@@ -40,6 +40,12 @@ namespace TowerRoyale
                 case CharacterType.Archer:
                     _characterData = DataManager.Instance.ArcherData;
                     break;
+                case CharacterType.Dragon:
+                    _characterData = DataManager.Instance.DragonData;
+                    break;
+                case CharacterType.Support:
+                    _characterData = DataManager.Instance.SupportData;
+                    break;
             }
             SetVariablesByData();
         }

@@ -10,8 +10,8 @@ namespace TowerRoyale
 {
     public class AISpawnerController : MonoBehaviour
     {
-        [SerializeField] private Spawner spawner;
-        [SerializeField] private Vector2 randomX;
+        [SerializeField] private List<Spawner> spawner;
+        [SerializeField] private Vector3 initiatePosition;
 
         [SerializeField] private float defaultEverySecond;
         [SerializeField] private float decreaseEverySecond;
@@ -31,31 +31,32 @@ namespace TowerRoyale
 
         private void Start()
         {
-            Invoke(nameof(SpawnCharacterByTimer), _everySecond);
+            //Invoke(nameof(SpawnCharacterByTimer), _everySecond);
         }
 
         private void Update()
         {
             _timer += Time.deltaTime;
-            // if (_timer % _everySecond < 0.1f)
-            // {
-            //     SpawnCharacterByTimer();
-            // }
+
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                SpawnCharacter(CharacterType.Knight);
+            }
         }
 
         private void SpawnCharacterByTimer()
         {
             if (_timer < level1Time)
             {
-                SpawnCharacter(CharacterType.Archer);
+                SpawnCharacter(CharacterType.Knight);
             }
             else if (_timer < level2Time && _timer > level1Time)
             {
-                SpawnCharacter(CharacterType.Knight);
+                SpawnCharacter(CharacterType.Archer);
             }
             else if (_timer < level3Time && _timer > level2Time)
             {
-                SpawnCharacter(CharacterType.Archer);
+                SpawnCharacter(CharacterType.Support);
             }
             else if (_timer < level4Time && _timer > level3Time)
             {
@@ -72,11 +73,9 @@ namespace TowerRoyale
 
         private void SpawnCharacter(CharacterType type)
         {
-            float x = Random.Range(randomX.x, randomX.y);
-
-            Vector3 randomPosition = new Vector3(x, 0, transform.position.z);
-
-            spawner.Spawn(type, randomPosition);
+            int index = Random.Range(0, 3);
+            Vector3 pos = spawner[index].transform.position + initiatePosition;
+            spawner[index].Spawn(type, pos, spawner[index].transform);
         }
     }
 }
