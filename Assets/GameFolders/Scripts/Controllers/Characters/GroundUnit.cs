@@ -33,7 +33,11 @@ namespace TowerRoyale
         private float _currentScanTime;
         private bool _canScan;
 
-        public OwnerType OwnerType => _ownerType;
+        public OwnerType OwnerType
+        {
+            get => _ownerType;
+            set => _ownerType = value;
+        }
 
         private float _health;
 
@@ -103,6 +107,8 @@ namespace TowerRoyale
 
         private void FixedUpdate()
         {
+            if(!GameManager.Instance.Playability()) return;
+
             if (!_canMove) return;
 
             if (_isAttack) return;
@@ -116,6 +122,8 @@ namespace TowerRoyale
 
         private void Update()
         {
+            if(!GameManager.Instance.Playability()) return;
+            
             if (!_canMove) return;
 
             if (_isAttack) return;

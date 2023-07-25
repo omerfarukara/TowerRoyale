@@ -16,7 +16,7 @@ namespace GameFolders.Scripts.Managers
         [SerializeField] private int randomLevelLowerLimit;
         [SerializeField] private int startDelay;
         
-        //private EventData _eventData => DataManager.Instance.EventData;
+        private EventData EventData => DataManager.Instance.EventData;
 
         public GameState GameState { get; set; } = GameState.Play;
 
@@ -43,29 +43,20 @@ namespace GameFolders.Scripts.Managers
    
         #region MonoBehaviour Methods
 
-        // private void OnEnable()
-        // {
-        //     _eventData.OnFinishLevel += OnFinish;
-        //     _eventData.OnLoseLevel += OnLose;
-        // }
-
-        private void Start()
+        private void OnEnable()
         {
-            if (SceneManager.GetActiveScene().buildIndex == 0)
-            {
-                StartCoroutine(LoadSceneAfterDelay(startDelay));
-            }
+            EventData.OnFinishLevel += OnFinish;
+        }
+
+        private void OnFinish(bool obj)
+        {
+            GameState = GameState.Idle;
         }
 
         #endregion
 
         #region Listening Methods
 
-        private void OnFinish()
-        {
-            GameState = GameState.Idle;
-            Level++;
-        }
 
         private void OnLose()
         {
@@ -90,6 +81,15 @@ namespace GameFolders.Scripts.Managers
         {
             SceneManager.LoadScene(Level);
         }
+        
+        public void LoadSceneAfterDelay()
+        {
+            if (SceneManager.GetActiveScene().buildIndex == 0)
+            {
+                StartCoroutine(LoadSceneAfterDelay(startDelay));
+            }
+        }
+
 
         private IEnumerator LoadSceneAfterDelay(float delay)
         {

@@ -11,9 +11,19 @@ namespace GameFolders.Scripts.Controllers
     public class GameController : MonoSingleton<GameController>
     {
         [SerializeField] private List<Transform> playerTowers;
-        [SerializeField] private List<Transform> enemyTowers;
+        [SerializeField] internal List<Transform> enemyTowers;
 
         private EventData EventData => DataManager.Instance.EventData;
+
+        private void OnEnable()
+        {
+            EventData.TimeOver += FindWinnerAndLoser;
+        }
+
+        private void OnDisable()
+        {
+            EventData.TimeOver -= FindWinnerAndLoser;
+        }
 
         private void CheckTowerGameControl()
         {
@@ -25,6 +35,23 @@ namespace GameFolders.Scripts.Controllers
             {
                 EventData.OnFinishLevel?.Invoke(true);
             }
+        }
+
+        private void FindWinnerAndLoser()
+        {
+            float playerTowerHealth = 0;
+            foreach (var pTower in playerTowers)
+            {
+                playerTowerHealth += pTower.GetComponent<TowerController>().Health;
+            }
+            
+            float enemyTowerHealth = 0;
+            foreach (var eTower in enemyTowers)
+            {
+                enemyTowerHealth += eTower.GetComponent<TowerController>().Health;
+            }
+
+            EventData.OnFinishLevel?.Invoke(playerTowerHealth >= enemyTowerHealth);
         }
 
         public List<Transform> GetTowers(OwnerType ownerType)

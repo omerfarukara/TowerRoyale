@@ -17,6 +17,8 @@ namespace GameFolders.Scripts.Controllers.Timer
         [SerializeField] private float _duration;
         [SerializeField] private TextMeshProUGUI _timerText;
         [SerializeField] private StringFormat format;
+
+        private EventData EventData => DataManager.Instance.EventData;
         
         private float _temporaryTimer;
         private float TemporaryTimer
@@ -83,6 +85,11 @@ namespace GameFolders.Scripts.Controllers.Timer
         public void TimerActive(float delay)
         {
             StartCoroutine(StartTimerActive(delay));
+        }
+
+        public void TimeOver()
+        {
+            EventData.TimeOver?.Invoke();
         }
         
         IEnumerator StartTimerActive(float delay)

@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using GameFolders.Scripts.General;
 using GameFolders.Scripts.Managers;
 using TowerRoyale;
@@ -33,8 +34,16 @@ namespace GameFolders.Scripts.Controllers
 
         private void OnFinish(bool status)
         {
-            victoryPanel.SetActive(status);
-            losePanel.SetActive(!status);
+            if (status)
+            {
+                victoryPanel.SetActive(true);
+                victoryPanel.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBounce);
+            }
+            else
+            {
+                losePanel.SetActive(true);
+                losePanel.transform.DOScale(Vector3.one, 0.5f);
+            }
         }
 
         private void OnNextLevel()

@@ -5,6 +5,7 @@ using System.Linq;
 using GameFolders.Scripts.Controllers;
 using GameFolders.Scripts.General.Enum;
 using GameFolders.Scripts.Interfaces;
+using Sirenix.OdinInspector;
 using TowerRoyale.GameFolders.Sprites;
 using UnityEngine;
 
@@ -18,7 +19,10 @@ namespace TowerRoyale
         [SerializeField] private float scanTime;
         [SerializeField] private GameObject visualBody;
         [SerializeField] private ParticleSystem bomb;
+        [SerializeField] private OwnerType ownerType;
 
+        [SerializeField] private GameObject extraZone;
+        
         private Collider[] _sightColliders;
         private static readonly int AttackHash = Animator.StringToHash("Attack");
 
@@ -33,7 +37,7 @@ namespace TowerRoyale
         private bool _canScan;
         private Transform _target;
 
-        public OwnerType OwnerType { get; }
+        public OwnerType OwnerType { get; set;}
 
 
         private float _health;
@@ -70,6 +74,7 @@ namespace TowerRoyale
         {
             hpBar.Health = Health;
             hpBar.MaxHealth = Health;
+            OwnerType = ownerType;
         }
 
         private void FixedUpdate()
@@ -96,7 +101,6 @@ namespace TowerRoyale
 
         private void CheckAndSetTarget()
         {
-
             _sightColliders = Physics.OverlapSphere(transform.position, _range);
 
             if (_sightColliders.Length <= 0) return;
@@ -151,6 +155,7 @@ namespace TowerRoyale
 
         public void TakeDamage(float damage)
         {
+            if (Health == 0) return;
             Health -= damage;
 
             if (Health <= 0)
@@ -163,10 +168,21 @@ namespace TowerRoyale
         private void OnDead()
         {
             //Kule Yıkıldı
-            bomb.Play();
             GameController.Instance.RemoveTower(transform);
+            StartCoroutine(DestroyTowerCoroutine());
+        }
+
+        [Obsolete("Obsolete")]
+        IEnumerator DestroyTowerCoroutine()
+        {
+            extraZone.layer = LayerMask.NameToLayer("PlayerSpawnPoint");
+            extraZone.transform.parent = null;
+            
+            bomb.Play();
+            yield return new WaitForSeconds(0.5f);
             gameObject.SetActive(false);
         }
+
 
 #if UNITY_EDITOR
         private void OnDrawGizmos()

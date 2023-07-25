@@ -16,18 +16,39 @@ namespace TowerRoyale
         [SerializeField] private TextMeshProUGUI manaText;
         [SerializeField] private Image characterImage;
 
+        [SerializeField] private List<Image> alphaImages;
+
         //private SpawnObject SpawnObject { get; set; }
-        private CharacterData _characterData;
+        public CharacterData CharacterData { get; set; }
+
         private EventData EventData => DataManager.Instance.EventData;
+
+        private bool _isActive;
+
+        public bool IsActive
+        {
+            get => _isActive;
+            set { _isActive = value; }
+        }
 
         private void Awake()
         {
             SetCharacterData();
         }
 
+        private void OnEnable()
+        {
+            EventData.CardManaControl += CardControl;
+        }
+
+        private void OnDisable()
+        {
+            EventData.CardManaControl -= CardControl;
+        }
+
         internal void OnSpawn(Vector3 pos)
         {
-            EventData.OnSpawnCharacter?.Invoke(characterType,pos);
+            EventData.OnSpawnCharacter?.Invoke(characterType, pos);
         }
 
         private void SetCharacterData()
@@ -35,25 +56,59 @@ namespace TowerRoyale
             switch (characterType)
             {
                 case CharacterType.Knight:
-                    _characterData = DataManager.Instance.KnightData;
+                    CharacterData = DataManager.Instance.KnightData;
                     break;
                 case CharacterType.Archer:
-                    _characterData = DataManager.Instance.ArcherData;
+                    CharacterData = DataManager.Instance.ArcherData;
                     break;
                 case CharacterType.Dragon:
-                    _characterData = DataManager.Instance.DragonData;
+                    CharacterData = DataManager.Instance.DragonData;
                     break;
                 case CharacterType.Support:
-                    _characterData = DataManager.Instance.SupportData;
+                    CharacterData = DataManager.Instance.SupportData;
                     break;
             }
+
             SetVariablesByData();
         }
+
         private void SetVariablesByData()
         {
-            characterNameText.text = _characterData.nickname;
-            characterImage.sprite = _characterData.characterSprite;
-            manaText.text = _characterData.mana.ToString();
+            characterNameText.text = CharacterData.nickname;
+            characterImage.sprite = CharacterData.characterSprite;
+            manaText.text = CharacterData.mana.ToString();
+        }
+
+        private void CardControl(int mana)
+        {
+            if (mana >= CharacterData.mana)
+            {
+                CardActive();
+            }
+            else
+            {
+                CardDeActive();
+            }
+        }
+
+        private void CardDeActive()
+        {
+            foreach (var aImages in alphaImages)
+            {
+                aImages.color = new Color(aImages.color.r, aImages.color.g, aImages.color.b, 177 / 255f);
+            }
+
+            IsActive = false;
+        }
+
+        private void CardActive()
+        {
+            foreach (var aImages in alphaImages)
+            {
+                aImages.color = new Color(aImages.color.r, aImages.color.g, aImages.color.b, 255 / 255f);
+            }
+
+            IsActive = true;
         }
     }
 }

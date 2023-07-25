@@ -4,7 +4,7 @@ namespace GameFolders.Scripts.Interfaces
 {
     public interface IDamageable
     {
-        public OwnerType OwnerType { get;}
+        public OwnerType OwnerType { get; set; }
         public float Health { get; set; }
         public void TakeDamage(float damage);
     }

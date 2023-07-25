@@ -11,9 +11,9 @@ namespace GameFolders.Scripts.General
         public Action OnPlay { get; set; }
         public Action<bool> OnFinishLevel { get; set; }
         
+        public Action TimeOver { get; set; }
         public Action<CharacterType,Vector3> OnSpawnCharacter { get; set; }
-        public Action<Vector3> OnRayCharacter { get; set; }
         
-        public Action<CharacterType> CharacterValidate { get; set; }
+        public Action<int> CardManaControl { get; set; }
     }
 }

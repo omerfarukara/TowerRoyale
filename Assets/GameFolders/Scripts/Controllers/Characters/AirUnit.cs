@@ -5,6 +5,7 @@ using System.Linq;
 using GameFolders.Scripts.Controllers;
 using GameFolders.Scripts.General.Enum;
 using GameFolders.Scripts.Interfaces;
+using GameFolders.Scripts.Managers;
 using Sirenix.OdinInspector;
 using TowerRoyale.GameFolders.Sprites;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace TowerRoyale
         [SerializeField] private float scanTime;
         [SerializeField] private UnityEvent onInitiate;
         [SerializeField] private UnityEvent onDead;
-        
+
         [ShowInInspector] private List<Transform> _towers = new List<Transform>();
         [ShowInInspector] private OwnerType _ownerType;
 
@@ -30,9 +31,14 @@ namespace TowerRoyale
         private float _currentScanTime;
         private bool _canScan;
 
-        public OwnerType OwnerType => _ownerType;
-        
+        public OwnerType OwnerType
+        {
+            get => _ownerType;
+            set => _ownerType = value;
+        }
+
         private float _health;
+
         public float Health
         {
             get => _health;
@@ -55,6 +61,7 @@ namespace TowerRoyale
 
         private bool _isAttack;
         private Transform _target;
+        private static readonly int IdleHash = Animator.StringToHash("Idle");
         private static readonly int AttackHash = Animator.StringToHash("Attack");
         private static readonly int ForceHash = Animator.StringToHash("Force");
 
@@ -78,7 +85,9 @@ namespace TowerRoyale
             Health = characterData.hitPoints;
         }
 
-        public override void Initialize(Action<SpawnObject> onComplete, OwnerType ownerType, Vector3 position) // This method works every time a unit is produced
+        public override void
+            Initialize(Action<SpawnObject> onComplete, OwnerType ownerType,
+                Vector3 position) // This method works every time a unit is produced
         {
             VariablesSetLocal();
             SetUnitData();
@@ -96,8 +105,10 @@ namespace TowerRoyale
 
         private void FixedUpdate()
         {
-            if(!_canMove) return;
-            
+            if(!GameManager.Instance.Playability()) return;
+
+            if (!_canMove) return;
+
             if (_isAttack) return;
 
             if (_canScan)
@@ -109,24 +120,26 @@ namespace TowerRoyale
 
         private void Update()
         {
-            if(!_canMove) return;
+            if(!GameManager.Instance.Playability()) return;
+            
+            if (!_canMove) return;
 
             if (_isAttack) return;
 
             _currentScanTime -= Time.deltaTime;
-            
+
             if (_currentScanTime < 0)
             {
                 _canScan = true;
                 _currentScanTime = scanTime;
             }
-            
+
             if (_target != null)
             {
                 if (Math.Abs(Vector3.Distance(transform.position, _target.position)) > _attackRange)
                 {
                     animator.SetFloat(ForceHash, agent.velocity.magnitude);
-                    if ( agent.speed != 0)return;
+                    if (agent.speed != 0) return;
                     agent.speed = _movementSpeed;
                 }
                 else
@@ -143,13 +156,16 @@ namespace TowerRoyale
         private void FindTower()
         {
             _towers = GameController.Instance.GetTowers(_ownerType);
-            Transform newTransform = _towers.OrderBy(t => Vector3.Distance(t.position, transform.position)).FirstOrDefault();
+            Transform newTransform =
+                _towers.OrderBy(t => Vector3.Distance(t.position, transform.position) ).FirstOrDefault();
             if (newTransform != null)
             {
                 _target = newTransform;
                 agent.SetDestination(_target.position);
                 agent.speed = _movementSpeed;
             }
+            animator.SetTrigger(IdleHash);
+            print("Idle Hash");
         }
 
         private void CheckAndSetTarget()
@@ -157,20 +173,21 @@ namespace TowerRoyale
             _sightColliders = Physics.OverlapSphere(transform.position, _sightRange);
 
             if (_sightColliders.Length <= 0) return;
-            
+
             List<Transform> enemyTransforms = new List<Transform>();
-                
+
             foreach (Collider sight in _sightColliders)
             {
                 if (!sight.TryGetComponent(out IDamageable iDamageable)) continue;
-                    
+
                 if (iDamageable.OwnerType == _ownerType) continue; // This collider object is mine
-                        
+
                 // This collider object is Enemy!
                 enemyTransforms.Add(sight.transform);
             }
 
-            Transform newTransform = enemyTransforms.OrderBy(t => Vector3.Distance(t.position, transform.position)).FirstOrDefault();
+            Transform newTransform = enemyTransforms.OrderBy(t => Vector3.Distance(t.position, transform.position))
+                .FirstOrDefault();
             if (newTransform != null)
             {
                 _target = newTransform;
@@ -181,15 +198,19 @@ namespace TowerRoyale
 
         public void Attack()
         {
+            print("Attack Öncesi");
+
             if (!_target.TryGetComponent(out IDamageable iDamageable)) return;
 
             iDamageable.TakeDamage(_damage);
 
             _isAttack = true;
-            
+
             agent.speed = 0;
-            
+
+            print("Attack Hash");
             animator.SetTrigger(AttackHash);
+
 
             if (Health > 0)
             {
@@ -199,6 +220,7 @@ namespace TowerRoyale
                 }
                 else
                 {
+                    _isAttack = false;
                     FindTower();
                 }
             }
@@ -206,14 +228,16 @@ namespace TowerRoyale
 
         private void OnDead()
         {
+            print("Öldü");
             _onComplete?.Invoke(this);
             onDead?.Invoke();
+            _canMove = false;
         }
 
         public void TakeDamage(float damage)
         {
             Health -= damage;
-            if (Health<= 0)
+            if (Health <= 0)
             {
                 Health = 0;
                 OnDead();

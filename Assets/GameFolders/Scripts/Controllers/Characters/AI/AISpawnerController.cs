@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using GameFolders.Scripts.Controllers;
 using GameFolders.Scripts.General.Enum;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -31,17 +32,12 @@ namespace TowerRoyale
 
         private void Start()
         {
-            //Invoke(nameof(SpawnCharacterByTimer), _everySecond);
+            Invoke(nameof(SpawnCharacterByTimer), _everySecond);
         }
 
         private void Update()
         {
             _timer += Time.deltaTime;
-
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                SpawnCharacter(CharacterType.Knight);
-            }
         }
 
         private void SpawnCharacterByTimer()
@@ -73,7 +69,7 @@ namespace TowerRoyale
 
         private void SpawnCharacter(CharacterType type)
         {
-            int index = Random.Range(0, 3);
+            int index = Random.Range(0, GameController.Instance.enemyTowers.Count);
             Vector3 pos = spawner[index].transform.position + initiatePosition;
             spawner[index].Spawn(type, pos, spawner[index].transform);
         }
