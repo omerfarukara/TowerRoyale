@@ -21,7 +21,8 @@ namespace TowerRoyale
             logo.DOScale(Vector3.one, tweenDuration).SetEase(ease);
             logoText.DOScale(Vector3.one, tweenDuration).SetDelay(tweenDuration / 2).SetEase(ease).OnComplete(() =>
             {
-                GameManager.Instance.LoadSceneAfterDelay();
+              Loading.Instance.ShowDownloadSize();  
+              //Loading.Instance.SceneAsyncLoad();  
             });
         }
     }

@@ -34,13 +34,16 @@ namespace TowerRoyale
             _parentAfterDrag = _transform.parent;
             _defaultPosition = _transform.position;
             _transform.SetParent(_transform.root);
+            
         }
 
         public void OnDrag(PointerEventData eventData)
         {
             if (!card.IsActive) return;
+            EventData.OnDraggableZone?.Invoke(card.CharacterData,true);
 
             _transform.position = Input.mousePosition;
+            
         }
 
         public void OnEndDrag(PointerEventData eventData)
@@ -49,6 +52,8 @@ namespace TowerRoyale
 
             _transform.SetParent(_parentAfterDrag);
             image.raycastTarget = false;
+            EventData.OnDraggableZone?.Invoke(card.CharacterData,false);
+
 
             RaycastHit hit;
             Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
@@ -58,6 +63,7 @@ namespace TowerRoyale
                 card.OnSpawn(hit.point);
                 ManaController.Instance.Mana -= card.CharacterData.mana;
                 _transform.DOMove(_defaultPosition, 0.2f);
+                image.raycastTarget = true;
             }
             else
             {

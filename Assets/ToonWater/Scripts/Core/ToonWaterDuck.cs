@@ -6,9 +6,9 @@ public class ToonWaterDuck:MonoBehaviour{
     public void FixedUpdate() {
       #if UNITY_ANDROID
         if(Input.touchCount==1){
-    		rigidbody.AddForce (transform.forward *Time.deltaTime* 1000);
+    		GetComponent<Rigidbody>().AddForce (transform.forward *Time.deltaTime* 1000);
     	}	
-        	rigidbody.AddTorque (transform.up *Time.deltaTime*Input.acceleration.y*-1000);
+        	GetComponent<Rigidbody>().AddTorque (transform.up *Time.deltaTime*Input.acceleration.y*-1000);
         
      #endif
     if (Input.GetKey ("up")||Input.GetKey ("w")) {

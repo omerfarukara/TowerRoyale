@@ -5,12 +5,15 @@ using GameFolders.Scripts.Managers;
 using TowerRoyale;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace GameFolders.Scripts.Controllers
 {
     public class UIController : MonoSingleton<UIController>
     {
         private EventData _eventData => DataManager.Instance.EventData;
+        
 
         [Header("Panels")]
         [SerializeField] private GameObject victoryPanel;
