@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using GameFolders.Scripts.General;
+using GameFolders.Scripts.Managers;
 using TMPro;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -21,14 +22,12 @@ namespace TowerRoyale
         [SerializeField] private GameObject downloadSizePanel;
         [SerializeField] private TextMeshProUGUI downloadSizeText;
 
-        private AsyncOperationHandle _sceneHandle;
         private bool _isWaiting;
 
         private void OnDisable()
         {
-            _sceneHandle.Completed -= OnSceneLoaded;
+            GameManager.Instance._sceneHandle.Completed -= OnSceneLoaded;
         }
-
 
         private void GoToNextLevel()
         {
@@ -44,8 +43,8 @@ namespace TowerRoyale
             
             if (!_isWaiting) return;
 
-            loadingPercentage.text = $"{_sceneHandle.PercentComplete * 100}%";
-            slider.value = _sceneHandle.PercentComplete;
+            loadingPercentage.text = $"{GameManager.Instance._sceneHandle.PercentComplete * 100}%";
+            slider.value = GameManager.Instance._sceneHandle.PercentComplete;
         }
 
         public void SceneAsyncLoad()
@@ -54,8 +53,8 @@ namespace TowerRoyale
             
             slider.transform.DOScale(Vector3.one, 0.5f).OnComplete(() =>
             {
-                _sceneHandle = Addressables.DownloadDependenciesAsync(levelName);
-                _sceneHandle.Completed += OnSceneLoaded;
+                GameManager.Instance._sceneHandle = Addressables.DownloadDependenciesAsync(levelName);
+                GameManager.Instance._sceneHandle.Completed += OnSceneLoaded;
 
                 _isWaiting = true;
             }).SetDelay(0.5f);

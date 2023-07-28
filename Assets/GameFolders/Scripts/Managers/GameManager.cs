@@ -3,6 +3,7 @@ using GameFolders.Scripts.General;
 using GameFolders.Scripts.General.Enum;
 using TowerRoyale;
 using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
@@ -39,6 +40,9 @@ namespace GameFolders.Scripts.Managers
             set => PlayerPrefs.SetInt("Gold", value);
         }
 
+        public AsyncOperationHandle _sceneHandle;
+
+        
         #endregion
    
         #region MonoBehaviour Methods

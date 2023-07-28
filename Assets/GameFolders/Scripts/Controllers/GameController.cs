@@ -13,6 +13,9 @@ namespace GameFolders.Scripts.Controllers
         [SerializeField] private List<Transform> playerTowers;
         [SerializeField] internal List<Transform> enemyTowers;
 
+        [SerializeField] private Gradient playerGradient;
+        [SerializeField] private Gradient enemyGradient;
+
         private EventData EventData => DataManager.Instance.EventData;
 
         private void OnEnable()

@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.SceneManagement;
 
 namespace GameFolders.Scripts.Controllers
 {
@@ -51,12 +52,16 @@ namespace GameFolders.Scripts.Controllers
 
         private void OnNextLevel()
         {
-            GameManager.Instance.NextLevel();
+            //GameManager.Instance.NextLevel();
+            Addressables.Release(GameManager.Instance._sceneHandle);
+            SceneManager.LoadScene("MainMenu");
         }
 
         private void OnTryAgain()
         {
-            GameManager.Instance.TryAgain();
+            //GameManager.Instance.TryAgain();
+            Addressables.Release(GameManager.Instance._sceneHandle);
+            SceneManager.LoadScene("MainMenu");
         }
     }
 }
